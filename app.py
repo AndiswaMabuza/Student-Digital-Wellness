@@ -24,11 +24,10 @@ st.set_page_config(
 def load_and_preprocess_data():
     """Loads the dataset from a CSV file."""
     try:
-        # Assuming your CSV file is named 'student_data.csv' and is in the same directory
         df = pd.read_csv('Students Social Media Addiction.csv')
         return df
     except FileNotFoundError:
-        st.error("Error: 'Students Social Media Addiction.csv' not found. Please upload the data file.")
+        st.error("Error: 'student_data.csv' not found. Please upload the data file.")
         return None
 
 @st.cache_resource
@@ -125,6 +124,22 @@ if df is not None:
     st.plotly_chart(fig_corr, use_container_width=True)
 
 
+    # --- EDA Summary and Recommendations ---
+    st.header("Insights and Key Findings from EDA")
+    st.markdown("Based on the data, here is a summary of the key trends:")
+    
+    high_usage_count = len(df[df['Avg_Daily_Usage_Hours'] > df['Avg_Daily_Usage_Hours'].mean() + df['Avg_Daily_Usage_Hours'].std()])
+    st.info(f"A significant number of students ({high_usage_count} students) report high social media usage, exceeding the average. This suggests a need for targeted workshops on digital time management.")
+
+    low_mental_health_count = len(df[df['Mental_Health_Score'] < 5])
+    if low_mental_health_count > len(df) * 0.2:
+        st.warning(f"Over 20% of students ({low_mental_health_count} students) have a mental health score below 5. This suggests a potential mental health crisis, and it's crucial to investigate the underlying factors with more detail.")
+    else:
+        st.info("Mental health scores are generally well-distributed, but a small group may need targeted support. Focus on resources for students scoring below 5.")
+    
+    conflicts_in_relationship = df[df['Relationship_Status'] == 'In Relationship']['Conflicts_Over_Social_Media'].mean()
+    st.info(f"On average, students in a relationship report {conflicts_in_relationship:.1f} conflicts due to social media. Providing resources on healthy digital communication could be beneficial for this group.")
+
     # --- Model Evaluation Section ---
     st.header("2. Predictive Model Evaluation")
     st.info(f"The predictive model uses a Linear Regression approach. The model's Mean Squared Error is **{mse:.2f}** and the R-squared score is **{r2:.2f}**.")
@@ -162,8 +177,15 @@ if df is not None:
     if st.sidebar.button("Predict Score & Get Recommendations"):
         prediction = model.predict(input_data)[0]
         st.subheader("Prediction & Recommendations")
-        st.success(f"Predicted Mental Health Score: **{prediction:.2f}**")
         
+        # Color-coding logic for the prediction
+        if prediction < 5:
+            st.markdown(f'### <span style="color:red; font-weight:bold;">Predicted Mental Health Score: {prediction:.2f}</span>', unsafe_allow_html=True)
+        elif prediction >= 8:
+            st.markdown(f'### <span style="color:green; font-weight:bold;">Predicted Mental Health Score: {prediction:.2f}</span>', unsafe_allow_html=True)
+        else:
+            st.markdown(f'### Predicted Mental Health Score: {prediction:.2f}', unsafe_allow_html=True)
+
         recommendations = generate_recommendations(prediction, input_data)
         
         st.markdown("---")
