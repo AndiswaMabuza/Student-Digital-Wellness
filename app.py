@@ -17,7 +17,7 @@ st.set_page_config(
     page_title="Student Digital Wellness",
     layout="wide",
     initial_sidebar_state="expanded"
-)
+) 
 
 # --- CACHED FUNCTIONS FOR PERFORMANCE ---
 @st.cache_data
@@ -90,7 +90,7 @@ def generate_recommendations(prediction, new_student_data):
     return recommendations
 
 # --- MAIN APP LAYOUT ---
-st.title("Student Digital Wellness Project 🧠")
+st.title("Student Digital Wellness Project")
 st.markdown("### An analytical dashboard to explore and predict student well-being.")
 
 # Load data and train model
@@ -155,11 +155,14 @@ if df is not None:
     avg_usage = st.sidebar.slider("Avg. Daily Usage Hours", 0.0, 10.0, 5.0, 0.1)
     addicted_score = st.sidebar.slider("Addiction Score (1-10)", 1, 10, 5, 1)
     sleep_hours = st.sidebar.slider("Sleep Hours Per Night", 3.0, 12.0, 7.0, 0.1)
+    
+    # Dynamically populate select boxes from the loaded data
     gender = st.sidebar.selectbox("Gender", df['Gender'].unique())
     academic_level = st.sidebar.selectbox("Academic Level", df['Academic_Level'].unique())
     most_used_platform = st.sidebar.selectbox("Most Used Platform", df['Most_Used_Platform'].unique())
     country = st.sidebar.selectbox("Country", df['Country'].unique())
     relationship_status = st.sidebar.selectbox("Relationship Status", df['Relationship_Status'].unique())
+    
     conflicts = st.sidebar.slider("Conflicts Over Social Media", 0, 10, 2, 1)
 
     input_data = pd.DataFrame({
